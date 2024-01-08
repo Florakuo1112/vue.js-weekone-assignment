@@ -166,28 +166,27 @@ revisePhoto(){
   };
   console.log(config)
   let data = {
-    category: "飲品",
-content: "只提供熱飲",
-description: "香醇濃郁、絲滑細膩的口感，安撫忙碌了一整天的你。",
-id: "-NnXblljA1gXZQ6K40rm",
-imageUrl: "https://i.pinimg.com/564x/a1/ff/84/a1ff847dfdfb13da27ca2793ff366d36.jpg",
+    category: "蛋糕",
+content: "使用英國產的伯爵茶葉",
+description: "每層法式薄餅之間塗抹伯爵茶奶油，每一口都散發獨特的茶香",
+id: "-NnbRpwUyJmo3CXT4dTv",
+imageUrl: " https://i.pinimg.com/564x/d8/ed/ee/d8edee73b9b556b613d7b314b462a8b6.jpg",
 imagesUrl: [
-"https://i.pinimg.com/564x/70/20/36/702036efb1bce60a5f773b7a2da548fd.jpg",
-"https://i.pinimg.com/564x/a1/ff/84/a1ff847dfdfb13da27ca2793ff366d36.jpg",
+"https://i.pinimg.com/564x/41/52/6d/41526d43fba0a0af0dd92f31fa2b6e9b.jpg",
+"https://i.pinimg.com/564x/d8/ed/ee/d8edee73b9b556b613d7b314b462a8b6.jpg",
 "",
 "",
 ""
 ],
 is_enabled: 1,
-origin_price: 100,
-price: 100,
-title: "義式巧克力",
-unit: "杯"
-  
+origin_price: 120,
+price: 120,
+title: "伯爵茶千層蛋糕",
+unit: "片"
   };
-  axios.put(`${this.api.url}/api/${this.api.api_path}/admin/product/-NnXblljA1gXZQ6K40rm`,data, config)
+  axios.put(`${this.api.url}/api/${this.api.api_path}/admin/product/-NnbRpwUyJmo3CXT4dTv`,{data}, config)
   .then((res)=>{
-    console.log(res);
+    console.log(res.config.data);
   }).catch((err)=>{
     console.log(err)
   })
@@ -197,7 +196,8 @@ unit: "杯"
 
     mounted(){
       this.checkCookie();
-     // this.revisePhoto()想要更改產品資料庫的內容但一直出次，請先呼略revisePhoto()這個function
+     this.revisePhoto()
+     //想要更改產品資料庫的內容但一直出次，請先呼略revisePhoto()這個function
       this.getProductList();
       
     }
