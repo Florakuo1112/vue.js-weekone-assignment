@@ -34,7 +34,7 @@
                     </tr>
                   </thead>
                   <tbody>
-                    <tr v-for="item in products">
+                    <tr v-for="item in products" :key="item.id">
                       <td width="150">{{item.title}}</td>
                       <td width="120">
                         {{item.origin_price}}
@@ -75,7 +75,7 @@
                     </div>
                   </div>
                   
-                      <span v-for="item in temp.imagesUrl" :data-url="item">
+                      <span v-for="(item, index) in temp.imagesUrl" :data-url="item" :key='index'>
                           <a href="#"><img :src="item" alt="" class="images m-2" @click.prevent="changePhoto(item)"> </a>
                       </span>
                         
@@ -156,7 +156,7 @@ checkCookie(){
 getProductList(){
   axios.get(`${this.api.url}/api/${this.api.api_path}/products/all`)
   .then((res)=>{
-   // console.log(res.data.products);
+    console.log(res.data.products);
     this.products = res.data.products
   })
 },
@@ -196,8 +196,6 @@ unit: "片"
 
     mounted(){
       this.checkCookie();
-     this.revisePhoto()
-     //想要更改產品資料庫的內容但一直出次，請先呼略revisePhoto()這個function
       this.getProductList();
       
     }
