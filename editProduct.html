@@ -53,31 +53,39 @@
               </td>
               <td>
                 <div class="btn-group">
-                  <button type="button" class="btn btn-outline-primary btn-sm">
+                  <button type="button" class="btn btn-outline-primary btn-sm" @click="editItem(item)">
                     編輯
                   </button>
-                  <button type="button" class="btn btn-outline-danger btn-sm">
+                  <button type="button" class="btn btn-outline-danger btn-sm" @click="deleteItem(item.id, item.title)">
                     刪除
                   </button>
                 </div>
               </td>
+
             </tr>
           </tbody>
         </table>
       </div>
-      <!-- Modal -->
-      <div id="productModal" ref="productModal" class="modal fade" tabindex="-1" aria-labelledby="productModalLabel"
-           aria-hidden="true">
+
+      
+      <!-- 建立新的產品Modal -->
+      <div id="productModal" ref="productModal" class="modal fade" tabindex="-1" aria-labelledby="productModalLabel " data-bs-backdrop="static" data-bs-keyboard="false"
+           aria-hidden="true"  >
         <div class="modal-dialog modal-xl">
           <div class="modal-content border-0">
+            <!-- header -->
             <div class="modal-header bg-dark text-white">
               <h5 id="productModalLabel" class="modal-title">
-                <span>新增產品</span>
+                <span >新增/編輯產品</span>
+                
               </h5>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" @click="clearTempData"></button>
             </div>
+
+            <!-- body -->
             <div class="modal-body">
               <div class="row">
+                <!-- 左半邊 -->
                 <div class="col-sm-4">
                   <div class="mb-2">
                     <div class="mb-3">
@@ -90,13 +98,14 @@
                   </div>
 
                   <h4>多圖新增</h4>
+                 
  
-                  <div v-show="addPhoto">
+                  <div v-show="temp.data.imagesUrl">
                       <div class="mb-2" >
                         <div class="mb-3" v-for="(item,key) in temp.data.imagesUrl" :key="item">
                           <label for="imagesUrl" class="form-label" >圖片網址</label>
                           <input type="text" class="form-control"
-                                 :placeholder="item"  disabled>
+                                 :placeholder="item"  v-model.lazy="temp.data.imagesUrl[key]">
                         <img class="img-fluid" :src="item" alt="其他圖片">
                         </div>
                       
@@ -105,8 +114,12 @@
                   <div  v-show="addPhoto" :class="{'d-none':!editPhoto}">
                     <label for="imagesUrl" class="form-label">輸入多圖網址</label>
                     <input type="text" class="form-control"
-                    placeholder="請輸入圖片連結" v-model="tempUrl">
-                  </div>
+                    placeholder="請輸入圖片連結" v-model="tempUrl" @change="addPhotos">
+                    
+                </div>
+
+
+                <div>
 
                   <button class="btn btn-outline-primary btn-sm d-block w-100" @click="addPhotos">
                     新增圖片
@@ -117,7 +130,12 @@
                       刪除圖片
                     </button>
                   </div>
+
                 </div>
+
+                  </div>
+
+                <!-- 右半邊 -->
                 <div class="col-sm-8">
                   <div class="mb-3">
                     <label for="title" class="form-label">標題</label>
@@ -168,57 +186,61 @@
                       <label class="form-check-label" for="is_enabled">是否啟用</label>
                     </div>
                     {{temp}}
+                    <br>
+                    {{tempUrl}}
                   </div>
                 </div>
               </div>
-            </div>
+              </div>
+           
+
+            <!-- footer -->
             <div class="modal-footer">
-              <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+              <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal" @click="clearTempData">
                 取消
               </button>
-              <button type="button" class="btn btn-primary">
+              <button type="button" class="btn btn-primary" @click="save">
                 確認
               </button>
             </div>
           </div>
+          </div>
         </div>
-      </div>
-      <div id="delProductModal" ref="delProductModal" class="modal fade" tabindex="-1"
-           aria-labelledby="delProductModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
+
+      <!-- 刪除產品的modal -->
+      <div id="delProductModal" ref="delProductModal" class="modal fade" tabindex="-1" aria-labelledby="delProductModalLabel" aria-hidden="true">
+        <div class="modal-dialog ">
           <div class="modal-content border-0">
             <div class="modal-header bg-danger text-white">
-              <h5 id="delProductModalLabel" class="modal-title">
-                <span>刪除產品</span>
-              </h5>
+              <h5 class="modal-title" id="delProductModalLabel">刪除產品</h5>
               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
               是否刪除
-              <strong class="text-danger"></strong> 商品(刪除後將無法恢復)。
+              <strong class="text-danger">{{deleteItemTitle}}</strong> (商品刪除後將無法恢復)。
             </div>
             <div class="modal-footer">
-              <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
-                取消
-              </button>
-              <button type="button" class="btn btn-danger">
-                確認刪除
-              </button>
+              <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">取消</button>
+              <button type="button" class="btn btn-danger" @click="confirmDelete">確認刪除</button>
             </div>
           </div>
         </div>
       </div>
-      <!-- Modal -->
-    </div>
+
+
+     
+
+      </div>
 
     <script type="module">
-        let productModal=''
+        let productModal='';
+        let delProductModal='';
     import { createApp } from 'https://unpkg.com/vue@3/dist/vue.esm-browser.js';
-
+    import {debounce} from 'https://cdn.jsdelivr.net/npm/@esm-bundle/lodash@4.17.21/esm/index.js'
+ 
     const app = createApp({
         data(){
             return{
-                text:'suc',
                 api:{
                     url : 'https://vue3-course-api.hexschool.io/v2',
                     api_path : 'florafirstapi',
@@ -227,6 +249,7 @@
                 productList:[],
                 temp:{
                     data: {
+                        //https://picsum.photos/200
                         title: "",
                         category: "",
                         origin_price: '',
@@ -242,17 +265,16 @@
                 addPhoto:false,
                 editPhoto:false,
                 tempUrl:'',
-                arr:[],
+                deleteId:'',
+                editId:'',
+                deleteItemTitle:'',
+                editCurrentItem:false
             }
                 
             
         },
         methods:{
             checkLogin(){
-                const token = document.cookie.split("; ").find((row) => row.startsWith("floraFirstApiToken="))?.split("=")[1];
-                console.log(token);
-                this.api.token=token
-                axios.defaults.headers.common['Authorization']=token
                 axios.post(`${this.api.url}/api/user/check` )
                 .then((res)=>{
                     console.log(res)
@@ -277,29 +299,115 @@
                 console.log(this.addPhoto);
                 this.addPhoto=true;
                 this.editPhoto=true
-               
+                //輸入圖片連結雙向綁定tempUrl
                 if(this.tempUrl){
-                this.addPhoto=true;
                  this.temp.data.imagesUrl.push(this.tempUrl)
                  console.log(this.temp.data.imagesUrl);
-                this.tempUrl = ''
-                };
-               
-
-
+                 this.tempUrl = '';
+                 this.editPhoto=false;
+                 console.log(this.addPhoto)
+               };
             },
+            //修改圖片
+          revisePhoto(key){
+            console.log(key);
+            console.log()
+          },
+
             //刪除多圖
             deletePhoto(){
                 console.log('del');
                 this.tempUrl='';
-                this.editPhoto=false;
+                this.editPhoto=false
+                
+                
                
-            }
+            },
+             //儲存新增的品項
+            save(){
+                axios.post(`${this.api.url}/api/${this.api.api_path}/admin/product`, this.temp)
+                .then((res)=>{
+                    console.log(res);
+                    this.clearTempData();
+                    productModal.hide();
+                    this.getProductInfo();
+
+
+                }).catch((err)=>{
+                    console.log(err)
+                })
+            },
+            //clear temp data
+            clearTempData(){
+             this.temp.data={
+                        title: "",
+                        category: "",
+                        origin_price: '',
+                        price:'',
+                        unit: '',
+                        description: "",
+                        content: "",
+                        is_enabled: 1,
+                        imageUrl: "",
+                        imagesUrl: []
+                            } 
+
+            },
+            //顯示刪除modal
+            deleteItem(id, title){
+                delProductModal.show();
+                console.log(title)
+                this.deleteId = id
+                this.deleteItemTitle = title
+
+            },
+            //確認刪除
+            confirmDelete(){
+              console.log(this.deleteId);
+             
+              axios.delete(`${this.api.url}/api/${this.api.api_path}/admin/product/${this.deleteId}`).then((res)=>{
+                console.log(res);
+                delProductModal.hide();
+                this.getProductInfo();
+              }).catch((err)=>{
+                console.log(err)
+              })
+              
+
+            },
+            //編輯品項
+            editItem(item){
+              console.log(item.id);
+              this.editId=item.id
+              productModal.show();
+              this.temp.data=item;
+              this.editCurrentItem=true;
+            },
+            //儲存編輯的品項
+            confirmEdit(){
+              console.log('123')
+              axios.put(`${this.api.url}/api/${this.api.api_path}/admin/product/${this.editId}`, this.temp.data)
+              .then((res)=>{
+                console.log(res)
+                productModal.hide();
+                this.editCurrentItem=false;
+                this.clearTempData();
+                this.getProductInfo();
+              }).catch((err)=>{
+                console.log(err)
+              })
+              
+            },
         },
         mounted(){
-            this.checkLogin();
-            this.getProductInfo();
-            productModal = new bootstrap.Modal(document.querySelector('#productModal'))
+          const token = document.cookie.split("; ").find((row) => row.startsWith("floraFirstApiToken="))?.split("=")[1];
+          console.log(token);
+          this.api.token=token;
+          axios.defaults.headers.common['Authorization']=token;
+          this.checkLogin();
+          this.getProductInfo();
+          productModal = new bootstrap.Modal(document.querySelector('#productModal'))
+          delProductModal = new bootstrap.Modal(document.querySelector('#delProductModal'))
         }
     })
 
