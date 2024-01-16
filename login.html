@@ -30,7 +30,7 @@
                   placeholder="Password" required v-model="temp.password">
                 <label for="password">Password</label>
               </div>
-              <button class="btn btn-lg btn-primary w-100 mt-3" type="button" @click='signIn'>
+              <button class="btn btn-lg btn-primary w-100 mt-3" type="button" @click.delay='signIn'>
                 登入
               </button>
             </form>
@@ -60,17 +60,33 @@
                 signIn(){
                     axios.post(`${this.api.url}/admin/signin`, this.temp)
                     .then((res)=>{
-                        console.log(res);
+                       // console.log(res);
                         const {token, expired} = res.data;
-                        console.log(token, expired);
+                       // console.log(token, expired);
                         document.cookie=
                         `floraFirstApiToken=${token}; expires=${new Date(expired)}`;
-                        location.href='./index.html'
-
+                        window.location.href='./index.html'
                     }).catch((err)=>{console.log(err)})
+                },
+                checkLogin(){
+                  const token = document.cookie.split("; ").find((row) => row.startsWith("floraFirstApiToken="))?.split("=")[1];
+                  const config = {
+                    headers:{Authorization:token}
+                  };
+                  axios.defaults.headers.common['Authorization']=token 
+                  axios.post(`${this.api.url}/api/user/check`).then((res)=>{
+                    window.location.href = './index.html'
+                  }).catch((err)=>{
+                    console.log(err.data.message)
+                  })
+
                 }
 
+            },
+            mounted(){
+              this.checkLogin();
             }
+           
         })
 
         app.mount('#app');

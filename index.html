@@ -15,6 +15,7 @@
             <div class="row py-3">
               <div class="col-md-6">
                 <h2>產品列表</h2>
+                <a href="./editProduct.html">編輯產品</a>
                 <table class="table table-hover mt-4">
                   <thead >
                     <tr>
@@ -34,7 +35,7 @@
                     </tr>
                   </thead>
                   <tbody>
-                    <tr v-for="item in products" :key="item.id">
+                    <tr v-for="(item,key) in products" :key="key">
                       <td width="150">{{item.title}}</td>
                       <td width="120">
                         {{item.origin_price}}
@@ -75,7 +76,7 @@
                     </div>
                   </div>
                   
-                      <span v-for="(item, index) in temp.imagesUrl" :data-url="item" :key='index'>
+                      <span v-for="(item, key) in temp.imagesUrl" :data-url="item" :key='key'>
                           <a href="#"><img :src="item" alt="" class="images m-2" @click.prevent="changePhoto(item)"> </a>
                       </span>
                         
@@ -130,28 +131,53 @@ changePhoto(item){
         }
     })
 },
+//確認有沒有cookie來判斷登入的API
 checkCookie(){
-  document.cookie = `test123=abc; expires=2024-01-12T12:47:53.000Z`; 
+  //document.cookie = `test123=abc; expires=Thu, 15 Jan 2025 03:55:00 GMT`; 
   //測試如果夾帶其他cookie會不會正常運作
   const decodedCookie = document.cookie;
-  console.log(decodedCookie)
   const cookieArray = decodedCookie.split(';')
-  console.log(cookieArray)
+ // console.log(cookieArray)
   let floraFirstApiToken;
   cookieArray.forEach((item)=>{
     item = item.split('=');
-    console.log(item)
-    console.log(item[0]);
-    if(item[0] === ' floraFirstApiToken'){
+   // console.log(item)
+   // console.log(item[0].trim());
+    //有時候會有空白造成錯誤
+    if(item[0].trim() === 'floraFirstApiToken'){
       floraFirstApiToken = item[1];
+      //console.log(floraFirstApiToken);
       this.token.token = floraFirstApiToken;
-      console.log(this.token);
+      //console.log(this.token);
     }
   });
-  console.log(floraFirstApiToken);
+ //console.log(floraFirstApiToken)
   if(!floraFirstApiToken){
     location.href='./login.html'
   };
+},
+//使用六角確認登入的API
+checkLogin(){
+  const token = document.cookie
+  .split("; ")
+  .find((row) => row.startsWith("floraFirstApiToken="))
+  ?.split("=")[1];
+  //console.log(token);
+  this.token.token = token;
+  const config = {
+    headers:{Authorization:this.token.token}
+  };
+ // console.log(config)
+  axios.defaults.headers.common['Authorization']=token 
+  //這個方式 或 把config放進去post裡面都可以,這個方法可以不用每次都放config
+
+  axios.post(`${this.api.url}/api/user/check`)
+  .then((res)=>{
+    console.log(res)
+  }).catch((err)=>{
+    window.location.href='./login.html'
+  })
+
 },
 getProductList(){
   axios.get(`${this.api.url}/api/${this.api.api_path}/products/all`)
@@ -161,42 +187,78 @@ getProductList(){
   })
 },
 revisePhoto(){
+
+  // const config = {
+  //   headers:{Authorization: this.token.token}
+  // };
+  // console.log(config)
+
+  let data = {
+    category: "餅乾",
+content: "使用M&M巧克力",
+description: "色彩的繽紛、繽紛的好心情",
+id: "-NnrsfZv0tGSINzJsQ0s",
+// imageUrl: " https://i.pinimg.com/564x/d8/ed/ee/d8edee73b9b556b613d7b314b462a8b6.jpg",
+// imagesUrl: [
+// "https://i.pinimg.com/564x/41/52/6d/41526d43fba0a0af0dd92f31fa2b6e9b.jpg",
+// "https://i.pinimg.com/564x/d8/ed/ee/d8edee73b9b556b613d7b314b462a8b6.jpg",
+// "",
+// "",
+// ""
+// ],
+is_enabled: 1,
+origin_price: 50,
+price: 50,
+title: "M&M 巧克力軟餅乾",
+unit: "片",
+  };
+  axios.put(`${this.api.url}/api/${this.api.api_path}/admin/product/-NnrsfZv0tGSINzJsQ0s`,{data})
+  .then((res)=>{
+    console.log(res.config.data);
+  }).catch((err)=>{
+    console.log(err)
+  })
+},
+addProduct(){
   const config = {
     headers:{Authorization: this.token.token}
   };
   console.log(config)
   let data = {
-    category: "蛋糕",
-content: "使用英國產的伯爵茶葉",
-description: "每層法式薄餅之間塗抹伯爵茶奶油，每一口都散發獨特的茶香",
-id: "-NnbRpwUyJmo3CXT4dTv",
-imageUrl: " https://i.pinimg.com/564x/d8/ed/ee/d8edee73b9b556b613d7b314b462a8b6.jpg",
-imagesUrl: [
-"https://i.pinimg.com/564x/41/52/6d/41526d43fba0a0af0dd92f31fa2b6e9b.jpg",
-"https://i.pinimg.com/564x/d8/ed/ee/d8edee73b9b556b613d7b314b462a8b6.jpg",
-"",
-"",
-""
-],
+category: "測試",
+content: "測試",
+description: "測試",
+// imageUrl: " https://i.pinimg.com/564x/d8/ed/ee/d8edee73b9b556b613d7b314b462a8b6.jpg",
+// imagesUrl: [
+// "https://i.pinimg.com/564x/41/52/6d/41526d43fba0a0af0dd92f31fa2b6e9b.jpg",
+// "https://i.pinimg.com/564x/d8/ed/ee/d8edee73b9b556b613d7b314b462a8b6.jpg",
+// "",
+// "",
+// ""
+// ],
 is_enabled: 1,
-origin_price: 120,
-price: 120,
-title: "伯爵茶千層蛋糕",
-unit: "片"
+origin_price: 50,
+price: 50,
+title: "測試",
+unit: "片",
+ice:true
   };
-  axios.put(`${this.api.url}/api/${this.api.api_path}/admin/product/-NnbRpwUyJmo3CXT4dTv`,{data}, config)
+  axios.put(`${this.api.url}/api/${this.api.api_path}/admin/product/-NnrsfZv0tGSINzJsQ0s`,{data}, config)
   .then((res)=>{
     console.log(res.config.data);
   }).catch((err)=>{
     console.log(err)
   })
 }
-
     },
 
     mounted(){
-      this.checkCookie();
+     // this.checkCookie();
+     // this.addProduct();
+      
+      this.checkLogin();
       this.getProductList();
+
       
     }
 })
