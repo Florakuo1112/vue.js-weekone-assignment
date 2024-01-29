@@ -15,6 +15,7 @@
     <div id="app">
       <div class="container">
         <div class="text-end mt-4">
+         
             
           <button class="btn btn-primary" @click="openModal">
             建立新的產品
@@ -48,8 +49,8 @@
               <td class="text-end">{{item.origin_price}}</td>
               <td class="text-end">{{item.price}}</td>
               <td>
-                <span class="text-success" v-if="item.is_enabled">啟用</span>
-                <span v-else>未啟用</span>
+                <span :class="{'text-success':item.is_enabled}" v-show="item.is_enabled">啟用</span>
+                <span :class="{'text-warning':!item.is_enabled}" v-show="!item.is_enabled" >未啟用</span>
               </td>
               <td>
                 <div class="btn-group">
@@ -68,7 +69,7 @@
       </div>
 
       
-      <!-- 建立新的產品Modal -->
+      <!-- 建立新的產品/編輯產品Modal -->
       <div id="productModal" ref="productModal" class="modal fade" tabindex="-1" aria-labelledby="productModalLabel " data-bs-backdrop="static" data-bs-keyboard="false"
            aria-hidden="true"  >
         <div class="modal-dialog modal-xl">
@@ -76,7 +77,9 @@
             <!-- header -->
             <div class="modal-header bg-dark text-white">
               <h5 id="productModalLabel" class="modal-title">
-                <span >新增/編輯產品</span>
+                <span v-show="editStatus=='新增'" >新增產品</span>
+                <span v-show="editStatus=='編輯'">編輯產品</span>
+               
                 
               </h5>
               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" @click="clearTempData"></button>
@@ -157,12 +160,12 @@
                   <div class="row">
                     <div class="mb-3 col-md-6">
                       <label for="origin_price" class="form-label">原價</label>
-                      <input id="origin_price" type="number" min="0" class="form-control" placeholder="請輸入原價" v-model="temp.data.origin_price">
+                      <input id="origin_price" type="number" min="0" class="form-control" placeholder="請輸入原價" v-model.number="temp.data.origin_price">
                     </div>
                     <div class="mb-3 col-md-6">
                       <label for="price" class="form-label">售價</label>
                       <input id="price" type="number" min="0" class="form-control"
-                             placeholder="請輸入售價" v-model="temp.data.price">
+                             placeholder="請輸入售價" v-model.number="temp.data.price">
                     </div>
                   </div>
                   <hr>
@@ -199,7 +202,10 @@
               <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal" @click="clearTempData">
                 取消
               </button>
-              <button type="button" class="btn btn-primary" @click="save">
+              <button type="button" class="btn btn-primary" @click="save" v-show="editStatus=='新增'">
+                確認
+              </button>
+              <button type="button" class="btn btn-primary" @click="confirmEdit" v-show="editStatus=='編輯'">
                 確認
               </button>
             </div>
@@ -262,6 +268,7 @@
                         imagesUrl: []
                             }       
                 },
+                editStatus:'',
                 addPhoto:false,
                 editPhoto:false,
                 tempUrl:'',
@@ -293,6 +300,7 @@
             //打開新增產品
             openModal(){
                 productModal.show();
+                this.editStatus='新增'
             },
             //增加多圖
             addPhotos(){
@@ -334,7 +342,8 @@
 
 
                 }).catch((err)=>{
-                    console.log(err)
+                    //console.log(err);
+                    alert(err.data.message)
                 })
             },
             //clear temp data
@@ -377,15 +386,19 @@
             },
             //編輯品項
             editItem(item){
+              this.editStatus='編輯'
               console.log(item.id);
               this.editId=item.id
               productModal.show();
-              this.temp.data=item;
+              this.temp.data= JSON.parse(JSON.stringify(item))
+              //編輯功能不可以在還沒存時就更新，由於編輯時有物件傳參考的問題，請確保編輯物件與原始物件參考不是同一個
+              //超過一層,要用深拷貝
               this.editCurrentItem=true;
             },
             //儲存編輯的品項
             confirmEdit(){
               console.log('123')
+              console.log(this.editId);
               axios.put(`${this.api.url}/api/${this.api.api_path}/admin/product/${this.editId}`, this.temp.data)
               .then((res)=>{
                 console.log(res)
@@ -406,8 +419,14 @@
           axios.defaults.headers.common['Authorization']=token;
           this.checkLogin();
           this.getProductInfo();
-          productModal = new bootstrap.Modal(document.querySelector('#productModal'))
-          delProductModal = new bootstrap.Modal(document.querySelector('#delProductModal'))
+          productModal = new bootstrap.Modal(document.querySelector('#productModal'),{
+            keyboard:false,
+            backdrop:'static'
+          });
+          delProductModal = new bootstrap.Modal(document.querySelector('#delProductModal'),{
+            keyboard:false,
+            backdrop:'static'
+          })
         }
     })
 
