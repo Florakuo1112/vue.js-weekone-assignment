@@ -316,11 +316,6 @@
                  console.log(this.addPhoto)
                };
             },
-            //修改圖片
-          revisePhoto(key){
-            console.log(key);
-            console.log()
-          },
 
             //刪除多圖
             deletePhoto(){
@@ -397,9 +392,8 @@
             },
             //儲存編輯的品項
             confirmEdit(){
-              console.log('123')
               console.log(this.editId);
-              axios.put(`${this.api.url}/api/${this.api.api_path}/admin/product/${this.editId}`, this.temp.data)
+              axios.put(`${this.api.url}/api/${this.api.api_path}/admin/product/${this.editId}`, this.temp)
               .then((res)=>{
                 console.log(res)
                 productModal.hide();
