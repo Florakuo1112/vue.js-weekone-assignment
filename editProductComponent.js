@@ -20,7 +20,7 @@ deleteModal
             productList:[],
             editStatus:'',
             productId:'',
-            tempUrl:'123',
+            tempUrl:'',
             temp:{
                 data: {
                     //https://picsum.photos/200
@@ -60,13 +60,15 @@ deleteModal
                 
                this.$refs.refProductModal.openModal()
                 this.productId = item.id;
+                console.log(this.editStatus)
                 console.log(this.productId)
                 this.temp.data= JSON.parse(JSON.stringify(item))
                 //編輯功能不可以在還沒存時就更新，由於編輯時有物件傳參考的問題，請確保編輯物件與原始物件參考不是同一個
                 //超過一層,要用深拷貝
             };
             if(this.editStatus === '新增'){
-                
+                console.log(this.editStatus)
+    
                 this.temp.data = {
                     imagesUrl:[],
                 };
@@ -127,17 +129,14 @@ deleteModal
                 console.log(err)
             })
         },
-        addPhotos(booling){
-            console.log('booling',booling)
-            this.addPhoto=booling;
-            console.log(this.addPhoto)
-            this.temp.data.imagesUrl=[]
+        addPhotos(){
+            this.isAddingPhotos=true;
         },
-        addPhotoUrl(){
-            console.log(this.temp.data)
-             this.temp.data.imagesUrl.push(this.tempUrl);
-             console.log(this.temp.data)
-             this.tempUrl=''
+        changePhoto(text){
+            console.log(text)
+             this.temp.data.imagesUrl.push(text);
+             console.log(this.temp.data);
+             this.isAddingPhotos=false;
         }
 
     },

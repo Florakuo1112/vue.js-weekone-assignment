@@ -4,10 +4,11 @@
 // 4.refs Bootstraps
  //https://picsum.photos/200
 export default {
-    props:['temp','addProduct'],
+    props:['temp','addProduct','editStatus','addPhotos','isAddingPhotos','tempUrl', 'changePhoto'],
     data(){
       return{ 
-      modalProduct:null
+      modalProduct:null,
+      tempUrl:'',
             }
     },
     methods:{
@@ -51,14 +52,14 @@ export default {
   
           <div  v-show="isAddingPhotos">
               <label for="imagesUrl" class="form-label">輸入多圖網址</label>
-              <input type="text" class="form-control"
-              placeholder="請輸入圖片連結" v-model="tempUrl" @change="temp.data.imagesUrl.push(tempUrl);tempUrl=''">
+              <input type="text" class="form-control" v-model='this.tempUrl'
+              placeholder="請輸入圖片連結" @change='changePhoto(this.tempUrl);this.tempUrl="" '>
               
           </div>
   
   
            <div>
-             <button class="btn btn-outline-primary btn-sm d-block w-100" @click="isAddingPhotos=true">
+             <button class="btn btn-outline-primary btn-sm d-block w-100" @click="addPhotos">
                新增圖片
              </button>
            </div>
@@ -70,7 +71,7 @@ export default {
          </div>
          <div class="col-sm-8">
              <pre>
-              {{temp}}{{tempUrl}}
+              {{temp}}
              </pre>
              
            <div class="mb-3">
