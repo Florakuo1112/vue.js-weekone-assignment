@@ -4,7 +4,7 @@
 // 4.refs Bootstraps
  //https://picsum.photos/200
 export default {
-    props:['temp','addProduct','editStatus','addPhotos','isAddingPhotos','tempUrl', 'changePhoto'],
+    props:['temp','addProduct','editStatus','addPhotos','isAddingPhotos', 'changePhoto'],
     data(){
       return{ 
       modalProduct:null,
